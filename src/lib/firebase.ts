@@ -20,7 +20,7 @@ let db: Database | undefined;
 export function getFirebaseApp(): FirebaseApp {
   if (!app) {
     const existing = getApps();
-    app = existing.length ? existing[0] : initializeApp(firebaseConfig);
+    app = existing.length ? existing[0]! : initializeApp(firebaseConfig);
   }
   return app;
 }
