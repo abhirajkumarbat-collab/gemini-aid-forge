@@ -51,11 +51,14 @@ export async function ensureUserRecord(u: User): Promise<CyberUser> {
     // NOTE: requires RTDB rules allowing users/$uid writes
     try {
       await set(userRef, {
-      email: u.email ?? "",
-      name: u.displayName ?? "",
-      isAdmin: false,
-      createdAt: Date.now(),
-    });
+        email: u.email ?? "",
+        name: u.displayName ?? "",
+        isAdmin: false,
+        createdAt: Date.now(),
+      });
+    } catch {
+      /* rules not opened yet — profile will be created on next login */
+    }
     return {
       uid: u.uid,
       email: u.email,
