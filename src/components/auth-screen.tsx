@@ -7,7 +7,7 @@ import {
   resetPassword,
   makeRecaptcha,
   sendPhoneOtp,
-} from "@/lib/firebase-auth-actions";
+} from "@/lib/auth";
 import type { ConfirmationResult } from "firebase/auth";
 
 function strength(pw: string): { label: string; pct: number; cls: string } {
