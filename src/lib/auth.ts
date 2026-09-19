@@ -78,8 +78,12 @@ export async function ensureUserRecord(u: User): Promise<CyberUser> {
 }
 
 export async function refreshRole(uid: string): Promise<boolean> {
-  const snap = await get(ref(getFirebaseDb(), `users/${uid}/isAdmin`));
-  return snap.exists() && snap.val() === true;
+  try {
+    const snap = await get(ref(getFirebaseDb(), `users/${uid}/isAdmin`));
+    return snap.exists() && snap.val() === true;
+  } catch {
+    return false;
+  }
 }
 
 export async function signUpEmail(name: string, email: string, password: string) {
@@ -87,12 +91,16 @@ export async function signUpEmail(name: string, email: string, password: string)
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   if (name) await updateProfile(cred.user, { displayName: name });
   const db = getFirebaseDb();
-  await set(ref(db, `users/${cred.user.uid}`), {
-    email,
-    name,
-    isAdmin: false,
-    createdAt: Date.now(),
-  });
+  try {
+    await set(ref(db, `users/${cred.user.uid}`), {
+      email,
+      name,
+      isAdmin: false,
+      createdAt: Date.now(),
+    });
+  } catch {
+    /* rules not opened yet — profile will be created on next login */
+  }
   return cred.user;
 }
 

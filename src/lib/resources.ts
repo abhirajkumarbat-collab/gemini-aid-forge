@@ -15,15 +15,19 @@ export interface CyberResource {
 
 export function watchResources(cb: (items: CyberResource[]) => void) {
   const r = ref(getFirebaseDb(), "resources");
-  return onValue(r, (snap) => {
-    const out: CyberResource[] = [];
-    if (snap.exists()) {
-      const v = snap.val() as Record<string, Omit<CyberResource, "id">>;
-      for (const [id, item] of Object.entries(v)) out.push({ id, ...item });
-    }
-    out.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-    cb(out);
-  });
+  return onValue(
+    r,
+    (snap) => {
+      const out: CyberResource[] = [];
+      if (snap.exists()) {
+        const v = snap.val() as Record<string, Omit<CyberResource, "id">>;
+        for (const [id, item] of Object.entries(v)) out.push({ id, ...item });
+      }
+      out.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      cb(out);
+    },
+    () => cb([]) // permission denied etc. — show empty catalog instead of crashing
+  );
 }
 
 export async function addResource(data: Omit<CyberResource, "id" | "createdAt">) {
