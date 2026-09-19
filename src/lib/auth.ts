@@ -33,9 +33,23 @@ export function watchAuth(cb: (u: User | null) => void) {
 export async function ensureUserRecord(u: User): Promise<CyberUser> {
   const db = getFirebaseDb();
   const userRef = ref(db, `users/${u.uid}`);
-  const snap = await get(userRef);
+  let snap;
+  try {
+    snap = await get(userRef);
+  } catch {
+    // Database rules not yet opened — fall back to a local profile so the
+    // user can still enter the app.
+    return {
+      uid: u.uid,
+      email: u.email,
+      name: u.displayName ?? "",
+      isAdmin: false,
+      isAnonymous: u.isAnonymous,
+    };
+  }
   if (!snap.exists()) {
     await set(userRef, {
+      // NOTE: requires RTDB rules allowing users/$uid writes
       email: u.email ?? "",
       name: u.displayName ?? "",
       isAdmin: false,
