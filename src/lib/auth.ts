@@ -48,8 +48,9 @@ export async function ensureUserRecord(u: User): Promise<CyberUser> {
     };
   }
   if (!snap.exists()) {
-    await set(userRef, {
-      // NOTE: requires RTDB rules allowing users/$uid writes
+    // NOTE: requires RTDB rules allowing users/$uid writes
+    try {
+      await set(userRef, {
       email: u.email ?? "",
       name: u.displayName ?? "",
       isAdmin: false,
